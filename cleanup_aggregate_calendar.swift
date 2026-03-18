@@ -2,13 +2,14 @@
 // Cleanup Aggregate Calendar
 //
 // This script deletes all events from today through the next 365 days
-// from the destination calendar "Aggregate" on the Google account.
+// from the destination calendar "Aggregate" on the Google account in
+// Calendar.app on Mac.
 //
 // Recompile command (run in Terminal):
-// swiftc "/Users/Art/Library/Mobile Documents/com~apple~CloudDocs/Software/Sync Aggregate Calendar/cleanup_aggregate_calendar.swift" -o ~/bin/cleanup_aggregate_calendar
+// swiftc "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Software/Sync Aggregate Calendar/cleanup_aggregate_calendar.swift" -o "$HOME/bin/cleanup_aggregate_calendar"
 //
 // Run command:
-// ~/bin/cleanup_aggregate_calendar
+// "$HOME/bin/cleanup_aggregate_calendar"
 //
 
 import Foundation

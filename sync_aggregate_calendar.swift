@@ -1,33 +1,25 @@
 //
 // Sync Aggregate Calendar V2
 //
-// This script incrementally merges events from multiple calendars into a
-// single destination calendar called "Aggregate".
+// This macOS script incrementally merges events from multiple
+// Calendar.app calendars into a single destination calendar.
 //
-// Source calendars:
-//   - Calendar (iCloud)  -> full event details
-//   - Partiful (iCloud)  -> full event details
-//   - Calendar (Google)  -> full event details
-//   - Calendar (USGBC)   -> busy blocks only ("Work"), all-day events excluded,
-//                           excludes organizer noreply@adp.com
+// Edit the USER CONFIGURATION section first. That section is where you
+// set:
+//   - which Calendar.app source calendars to read from
+//   - which Calendar.app destination calendar to write to
+//   - which calendars should be copied in full vs. shown as "busy" blocks
+//   - filters such as all-day-event exclusion and organizer-email exclusion
 //
-// Destination calendar:
-//   - Aggregate (Google)
-//
-// V2 behavior:
-//   - Window: today through the next 365 days
-//   - Incremental sync instead of full rebuild
-//   - Creates missing events
-//   - Updates changed events in place
-//   - Deletes destination events whose source event disappeared
-//   - Avoids duplicates by tracking source identifiers in event notes
-//   - Distinguishes recurring event occurrences by occurrence date
+// This works specifically with Calendar.app on Mac through EventKit.
+// The calendar names and account/source names must match what
+// Calendar.app shows.
 //
 // Recompile command (run in Terminal):
-// swiftc "/Users/Art/Library/Mobile Documents/com~apple~CloudDocs/Software/Sync Aggregate Calendar/sync_aggregate_calendar_v2.swift" -o ~/bin/sync_aggregate_calendar
+// swiftc "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Software/Sync Aggregate Calendar/sync_aggregate_calendar.swift" -o "$HOME/bin/sync_aggregate_calendar"
 //
 // Run command:
-// ~/bin/sync_aggregate_calendar
+// "$HOME/bin/sync_aggregate_calendar"
 //
 
 import Foundation
@@ -39,6 +31,11 @@ let store = EKEventStore()
 enum MergeMode: String {
     case full
     case busy
+}
+
+struct CalendarReference {
+    let title: String
+    let sourceTitle: String
 }
 
 struct SourceSpec {
@@ -67,7 +64,41 @@ struct ManagedMetadata {
     let fingerprint: String
 }
 
+// =============================================================================
+// USER CONFIGURATION
+// =============================================================================
+//
+// Edit this section first when adapting the script to another Mac,
+// account, or set of Calendar.app calendars.
+//
+// Calendar matching notes:
+// - `title` must exactly match the calendar name shown in Calendar.app on Mac.
+// - `sourceTitle` must exactly match the account/source name shown in
+//   Calendar.app on Mac (for example "iCloud", "Google", or another
+//   account name).
+//
+// Source behavior notes:
+// - Use `.full` to copy the event title, location, timing, and all
+//   metadata the script stores for change tracking.
+// - Use `.busy` to hide source details and create a generic busy block instead.
+// - Set `includeAllDayEvents` to `false` to skip all-day events from
+//   that source.
+// - Add lowercase email addresses to `excludedOrganizerEmails` to
+//   ignore events from specific organizers on that source calendar.
+//
+// Destination behavior notes:
+// - The destination calendar is where the merged "Aggregate" events
+//   are written.
+// - Only events created by this script are modified or removed.
+//   Other events in the destination calendar are left alone.
+//
+// Advanced note:
+// - Leave `managedByValue` alone unless you intentionally want the
+//   script to stop recognizing previously synced events and recreate
+//   them.
+
 let sourceSpecs: [SourceSpec] = [
+    // Personal iCloud calendar: copy events in full.
     .init(
         title: "Calendar",
         sourceTitle: "iCloud",
@@ -75,6 +106,8 @@ let sourceSpecs: [SourceSpec] = [
         includeAllDayEvents: true,
         excludedOrganizerEmails: []
     ),
+
+    // Partiful imports on iCloud: copy events in full.
     .init(
         title: "Partiful",
         sourceTitle: "iCloud",
@@ -82,6 +115,8 @@ let sourceSpecs: [SourceSpec] = [
         includeAllDayEvents: true,
         excludedOrganizerEmails: []
     ),
+
+    // Personal Google calendar: copy events in full.
     .init(
         title: "Calendar",
         sourceTitle: "Google",
@@ -89,6 +124,9 @@ let sourceSpecs: [SourceSpec] = [
         includeAllDayEvents: true,
         excludedOrganizerEmails: []
     ),
+
+    // Work calendar: publish only generic busy blocks, skip all-day events,
+    // and ignore events from this organizer.
     .init(
         title: "Calendar",
         sourceTitle: "USGBC",
@@ -98,10 +136,17 @@ let sourceSpecs: [SourceSpec] = [
     )
 ]
 
-let destinationTitle = "Aggregate"
-let destinationSourceTitle = "Google"
+// Destination calendar that receives the merged events.
+let destinationCalendar = CalendarReference(title: "Aggregate", sourceTitle: "Google")
+
+// Busy-mode events use this title instead of the source event title.
+let busyEventTitle = "Work"
+
+// Number of days ahead to sync, starting from the beginning of today.
 let syncDays = 365
 
+// Internal marker written into destination event notes so the script can tell
+// which events it owns on later runs.
 let managedByValue = "sync_aggregate_calendar_v2"
 
 func fail(_ message: String) -> Never {
@@ -167,7 +212,7 @@ func normalizedTitle(for sourceEvent: EKEvent, mode: MergeMode) -> String {
     case .full:
         return sanitized(sourceEvent.title).isEmpty ? "[untitled]" : sanitized(sourceEvent.title)
     case .busy:
-        return "Work"
+        return busyEventTitle
     }
 }
 
@@ -359,7 +404,10 @@ func runSync() {
     let start = calendarSystem.startOfDay(for: Date())
     let end = calendarSystem.date(byAdding: .day, value: syncDays, to: start)!
 
-    let destination = findCalendar(title: destinationTitle, sourceTitle: destinationSourceTitle)
+    let destination = findCalendar(
+        title: destinationCalendar.title,
+        sourceTitle: destinationCalendar.sourceTitle
+    )
 
     var normalizedBySourceKey: [String: NormalizedEvent] = [:]
 
@@ -483,10 +531,10 @@ func runSync() {
     }
 
     print("Incremental sync complete.")
-    print("Created in \(destinationTitle): \(createdCount)")
-    print("Updated in \(destinationTitle): \(updatedCount)")
-    print("Deleted from \(destinationTitle): \(deletedCount)")
-    print("Unchanged in \(destinationTitle): \(unchangedCount)")
+    print("Created in \(destinationCalendar.title): \(createdCount)")
+    print("Updated in \(destinationCalendar.title): \(updatedCount)")
+    print("Deleted from \(destinationCalendar.title): \(deletedCount)")
+    print("Unchanged in \(destinationCalendar.title): \(unchangedCount)")
     print("Skipped all-day events: \(skippedAllDayCount)")
     print("Skipped organizer-filtered events: \(skippedOrganizerCount)")
     print("Duplicate source keys seen: \(duplicateSourceKeyCount)")
