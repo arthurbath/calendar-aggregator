@@ -6,9 +6,11 @@ These Swift scripts automate Calendar.app tasks on macOS:
 - `src/cleanup_aggregate_calendar.swift`: removes events from the destination calendar inside the sync window.
 - `src/enforce_exchange_alerts.swift`: ensures upcoming events in one calendar have the required alert.
 
+The files in `src/` are generic examples. To use a script, copy it into `personalized/`, edit the copy there, and leave your private calendar names and account details out of `src/`.
+
 ## Configure And Compile
 
-Edit the `USER CONFIGURATION` section in the source file you want to use, then run its matching compiler script in `compilers/`.
+Copy the script you want from `src/` into `personalized/`, edit the `USER CONFIGURATION` section in that personalized copy, then run its matching compiler script in `compilers/`.
 
 The compiler scripts write binaries to `dist/bin/`. The sync and alert compilers also generate LaunchAgent plist files in `dist/launchd/` for interval-based runs.
 

@@ -2,15 +2,14 @@
 // Calendar Scripts: Cleanup Aggregate Calendar
 //
 // This script deletes all events from today through the next 365 days
-// from the destination calendar "Aggregate" on the Google account in
-// Calendar.app on Mac.
+// from the configured destination calendar in Calendar.app on Mac.
 import Foundation
 import EventKit
 
 let store = EKEventStore()
 
 let destinationTitle = "Aggregate"
-let destinationSourceTitle = "Google"
+let destinationSourceTitle = "iCloud"
 let syncDays = 365
 
 func fail(_ message: String) -> Never {

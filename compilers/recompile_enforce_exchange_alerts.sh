@@ -4,7 +4,8 @@ set -euo pipefail
 
 script_dir=${0:A:h}
 repo_dir=${script_dir:h}
-source_file="$repo_dir/src/enforce_exchange_alerts.swift"
+personalized_dir=${PERSONALIZED_DIR:-"$repo_dir/personalized"}
+source_file="$personalized_dir/enforce_exchange_alerts.swift"
 dist_dir=${DIST_DIR:-"$repo_dir/dist"}
 dist_bin_dir="$dist_dir/bin"
 launchd_dir="$dist_dir/launchd"
@@ -13,6 +14,12 @@ log_dir=${INSTALL_LOG_DIR:-"$HOME/Library/Logs"}
 label="com.art.enforce_exchange_alerts"
 plist_path="$launchd_dir/$label.plist"
 start_interval=${START_INTERVAL_SECONDS:-900}
+
+if [[ ! -f "$source_file" ]]; then
+    print -u2 "Missing $source_file"
+    print -u2 "Copy src/enforce_exchange_alerts.swift into personalized/ and edit it before compiling."
+    exit 1
+fi
 
 mkdir -p "$dist_bin_dir" "$launchd_dir"
 swiftc "$source_file" -o "$dist_bin_dir/enforce_exchange_alerts"

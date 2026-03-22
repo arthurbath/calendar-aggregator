@@ -36,7 +36,7 @@ struct CalendarReference {
 // - All-day events are skipped by default because a "5 minutes before" alert
 //   usually does not make sense for an all-day block.
 
-let targetCalendar = CalendarReference(title: "Calendar", sourceTitle: "USGBC")
+let targetCalendar = CalendarReference(title: "Work", sourceTitle: "Exchange")
 let lookAheadDays = 30
 let requiredAlertOffsetSeconds: TimeInterval = -300
 let replaceExistingAlertsWhenMissing = true

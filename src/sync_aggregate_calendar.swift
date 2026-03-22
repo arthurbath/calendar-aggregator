@@ -90,49 +90,39 @@ struct ManagedMetadata {
 //   them.
 
 let sourceSpecs: [SourceSpec] = [
-    // Personal iCloud calendar: copy events in full.
+    // Personal calendar: copy events in full.
     .init(
-        title: "Calendar",
+        title: "Personal",
         sourceTitle: "iCloud",
         mode: .full,
         includeAllDayEvents: true,
         excludedOrganizerEmails: []
     ),
 
-    // Partiful imports on iCloud: copy events in full.
+    // Shared calendar: copy events in full.
     .init(
-        title: "Partiful",
-        sourceTitle: "iCloud",
-        mode: .full,
-        includeAllDayEvents: true,
-        excludedOrganizerEmails: []
-    ),
-
-    // Personal Google calendar: copy events in full.
-    .init(
-        title: "Calendar",
+        title: "Family",
         sourceTitle: "Google",
         mode: .full,
         includeAllDayEvents: true,
         excludedOrganizerEmails: []
     ),
 
-    // Work calendar: publish only generic busy blocks, skip all-day events,
-    // and ignore events from this organizer.
+    // Work calendar: publish only generic busy blocks.
     .init(
-        title: "Calendar",
-        sourceTitle: "USGBC",
+        title: "Work",
+        sourceTitle: "Exchange",
         mode: .busy,
         includeAllDayEvents: false,
-        excludedOrganizerEmails: ["noreply@adp.com"]
+        excludedOrganizerEmails: ["noreply@example.com"]
     )
 ]
 
 // Destination calendar that receives the merged events.
-let destinationCalendar = CalendarReference(title: "Aggregate", sourceTitle: "Google")
+let destinationCalendar = CalendarReference(title: "Aggregate", sourceTitle: "iCloud")
 
 // Busy-mode events use this title instead of the source event title.
-let busyEventTitle = "Work"
+let busyEventTitle = "Busy"
 
 // Number of days ahead to sync, starting from the beginning of today.
 let syncDays = 365
