@@ -1,5 +1,6 @@
 //
-// Calendar Scripts: Aggregate Calendar Sync V2
+// Calendar Scripts: Aggregate Calendar Sync
+// 2.0.0
 //
 // This macOS script incrementally merges events from multiple
 // Calendar.app calendars into a single destination calendar.

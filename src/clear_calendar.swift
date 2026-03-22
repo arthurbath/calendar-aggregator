@@ -1,27 +1,20 @@
 //
-// Calendar Scripts: Cleanup Aggregate Calendar
+// Calendar Scripts: Clear Calendar
 //
-// This script deletes all events from today through the next 365 days
-// from the configured destination calendar in Calendar.app on Mac.
+// This script deletes all events from the configured destination
+// calendar in Calendar.app on Mac.
 import Foundation
 import EventKit
 
 let store = EKEventStore()
 
-let destinationTitle = "Aggregate"
+// Customize these values to match the calendar you want to clear.
+let destinationTitle = "Calendar"
 let destinationSourceTitle = "iCloud"
-let syncDays = 365
 
 func fail(_ message: String) -> Never {
     fputs(message + "\n", stderr)
     exit(1)
-}
-
-func iso(_ date: Date?) -> String {
-    guard let date else { return "[nil]" }
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime]
-    return formatter.string(from: date)
 }
 
 func findCalendar(title: String, sourceTitle: String) -> EKCalendar {
@@ -66,12 +59,12 @@ func requestAccessAndRun() {
 }
 
 func runCleanup() {
-    let cal = Calendar.current
-    let start = cal.startOfDay(for: Date())
-    let end = cal.date(byAdding: .day, value: syncDays, to: start)!
-
     let destination = findCalendar(title: destinationTitle, sourceTitle: destinationSourceTitle)
-    let predicate = store.predicateForEvents(withStart: start, end: end, calendars: [destination])
+    let predicate = store.predicateForEvents(
+        withStart: Date.distantPast,
+        end: Date.distantFuture,
+        calendars: [destination]
+    )
     let existingEvents = store.events(matching: predicate)
 
     var deletedCount = 0
@@ -91,9 +84,8 @@ func runCleanup() {
         fail("ERROR committing deletions: \(error.localizedDescription)")
     }
 
-    print("Cleanup complete.")
+    print("Clear complete.")
     print("Deleted from \(destinationTitle): \(deletedCount)")
-    print("Window: \(iso(start)) -> \(iso(end))")
     exit(0)
 }
 

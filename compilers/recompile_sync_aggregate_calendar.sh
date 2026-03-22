@@ -7,11 +7,12 @@ repo_dir=${script_dir:h}
 personalized_dir=${PERSONALIZED_DIR:-"$repo_dir/personalized"}
 source_file="$personalized_dir/sync_aggregate_calendar.swift"
 dist_dir=${DIST_DIR:-"$repo_dir/dist"}
-dist_bin_dir="$dist_dir/bin"
+dist_app_dir="$dist_dir/apps"
 launchd_dir="$dist_dir/launchd"
-install_bin_dir=${INSTALL_BIN_DIR:-"$HOME/bin"}
+app_name="Sync Aggregate Calendar"
+install_app_dir=${INSTALL_APP_DIR:-"$HOME/Applications"}
 log_dir=${INSTALL_LOG_DIR:-"$HOME/Library/Logs"}
-label="com.art.sync_aggregate_calendar"
+label="garden.bath.sync-aggregate-calendar"
 plist_path="$launchd_dir/$label.plist"
 start_interval=${START_INTERVAL_SECONDS:-900}
 
@@ -21,8 +22,8 @@ if [[ ! -f "$source_file" ]]; then
     exit 1
 fi
 
-mkdir -p "$dist_bin_dir" "$launchd_dir"
-swiftc "$source_file" -o "$dist_bin_dir/sync_aggregate_calendar"
+mkdir -p "$dist_app_dir" "$launchd_dir"
+swiftc "$source_file" -o "$dist_app_dir/$app_name"
 
 cat > "$plist_path" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -33,7 +34,7 @@ cat > "$plist_path" <<EOF
     <string>$label</string>
     <key>ProgramArguments</key>
     <array>
-        <string>$install_bin_dir/sync_aggregate_calendar</string>
+        <string>$install_app_dir/$app_name</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
