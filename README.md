@@ -1,25 +1,27 @@
 # Calendar Scripts
 
 These Swift scripts automate Calendar.app tasks on macOS:
+- `1-src/sync_aggregate_calendar.swift`: Merges multiple source calendars into one destination calendar.
+- `1-src/clear_calendar.swift`: Removes all events from the destination calendar.
+- `1-src/enforce_alerts.swift`: Ensures upcoming events across one or more calendars have their required alerts.
 
-- `src/sync_aggregate_calendar.swift`: merges multiple source calendars into one destination calendar.
-- `src/clear_calendar.swift`: removes all events from the destination calendar.
-- `src/enforce_exchange_alerts.swift`: ensures upcoming events in one calendar have the required alert.
+## Configure & Compile
 
-The files in `src/` are generic examples. To use a script, copy it into `personalized/`, edit the copy there, and leave your private calendar names and account details out of `src/`.
+The numbered folders reflect the intended setup order:
 
-## Configure And Compile
+1. `1-src/`: Generic example scripts.
+1. `2-personalized/`: Your private configured copies.
+1. `3-compilers/`: Build scripts that compile from `2-personalized/`.
+1. `4-dist/`: Generated apps and LaunchAgent plists.
 
-Copy the script you want from `src/` into `personalized/`, edit the `USER CONFIGURATION` section in that personalized copy, then run its matching compiler script in `compilers/`.
+1. Copy the script you want from `1-src/` into `2-personalized/`.
+1. Edit the `USER CONFIGURATION` section in that personalized copy.
+1. Run the script's matching compiler script in `3-compilers/`. The compiler scripts write executables to `4-dist/apps/`. The sync and alert compilers also generate LaunchAgent plist files in `4-dist/launchd/` for interval-based runs.
 
-The compiler scripts write executables to `dist/apps/`. The sync and alert compilers also generate LaunchAgent plist files in `dist/launchd/` for interval-based runs.
+## Install on macOS
 
-## Install On macOS
-
-Copy the compiled executables from `dist/apps/` to `~/Applications/`.
-
-If you want a script to run on an interval, copy its generated plist from `dist/launchd/` to `~/Library/LaunchAgents/`, then load it:
-
+1. Copy the compiled executables from `4-dist/apps/` to `~/Applications/`.
+1. If you want a script to run on an interval, copy its generated plist from `4-dist/launchd/` to `~/Library/LaunchAgents/`, then load it:
 ```bash
 launchctl unload "$HOME/Library/LaunchAgents/<label>.plist" 2>/dev/null
 launchctl load "$HOME/Library/LaunchAgents/<label>.plist"
@@ -27,4 +29,4 @@ launchctl load "$HOME/Library/LaunchAgents/<label>.plist"
 
 The generated plists expect the installed executables to live in `~/Applications/` and write logs to `~/Library/Logs/`.
 
-On first run, macOS will ask for Calendar access. `clear_calendar` is the destructive one, so it is usually best run manually.
+On first run, macOS will ask for Calendar access.

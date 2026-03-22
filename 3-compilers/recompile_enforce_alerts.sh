@@ -4,21 +4,21 @@ set -euo pipefail
 
 script_dir=${0:A:h}
 repo_dir=${script_dir:h}
-personalized_dir=${PERSONALIZED_DIR:-"$repo_dir/personalized"}
-source_file="$personalized_dir/sync_aggregate_calendar.swift"
-dist_dir=${DIST_DIR:-"$repo_dir/dist"}
+personalized_dir=${PERSONALIZED_DIR:-"$repo_dir/2-personalized"}
+source_file="$personalized_dir/enforce_alerts.swift"
+dist_dir=${DIST_DIR:-"$repo_dir/4-dist"}
 dist_app_dir="$dist_dir/apps"
 launchd_dir="$dist_dir/launchd"
-app_name="Sync Aggregate Calendar"
+app_name="Enforce Alerts"
 install_app_dir=${INSTALL_APP_DIR:-"$HOME/Applications"}
 log_dir=${INSTALL_LOG_DIR:-"$HOME/Library/Logs"}
-label="garden.bath.sync-aggregate-calendar"
+label="garden.bath.enforce-alerts"
 plist_path="$launchd_dir/$label.plist"
 start_interval=${START_INTERVAL_SECONDS:-900}
 
 if [[ ! -f "$source_file" ]]; then
     print -u2 "Missing $source_file"
-    print -u2 "Copy src/sync_aggregate_calendar.swift into personalized/ and edit it before compiling."
+    print -u2 "Copy 1-src/enforce_alerts.swift into 2-personalized/ and edit it before compiling."
     exit 1
 fi
 
@@ -41,9 +41,9 @@ cat > "$plist_path" <<EOF
     <key>StartInterval</key>
     <integer>$start_interval</integer>
     <key>StandardOutPath</key>
-    <string>$log_dir/sync_aggregate_calendar.log</string>
+    <string>$log_dir/enforce_alerts.log</string>
     <key>StandardErrorPath</key>
-    <string>$log_dir/sync_aggregate_calendar.log</string>
+    <string>$log_dir/enforce_alerts.log</string>
 </dict>
 </plist>
 EOF
