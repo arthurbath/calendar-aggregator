@@ -1,5 +1,5 @@
 //
-// Sync Aggregate Calendar V2
+// Calendar Scripts: Aggregate Calendar Sync V2
 //
 // This macOS script incrementally merges events from multiple
 // Calendar.app calendars into a single destination calendar.
@@ -15,8 +15,8 @@
 // The calendar names and account/source names must match what
 // Calendar.app shows.
 //
-// Recompile command (run in Terminal):
-// swiftc "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Software/Sync Aggregate Calendar/sync_aggregate_calendar.swift" -o "$HOME/bin/sync_aggregate_calendar"
+// Recompile script (local, ignored by git):
+// ./.local/recompile_sync_aggregate_calendar.sh
 //
 // Run command:
 // "$HOME/bin/sync_aggregate_calendar"

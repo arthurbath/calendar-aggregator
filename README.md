@@ -1,4 +1,4 @@
-# Sync Aggregate Calendar
+# Calendar Scripts
 
 This repo contains Swift scripts for maintaining a merged "Aggregate"
 calendar in Calendar.app on macOS using EventKit.
@@ -13,6 +13,11 @@ The helper script, `cleanup_aggregate_calendar.swift`, deletes events
 from the Calendar.app destination calendar across the configured sync
 window. It is useful if you want to reset the aggregate calendar before
 testing or after changing sync logic.
+
+The utility script, `enforce_exchange_alerts.swift`, scans a single
+Calendar.app calendar for events in the next 30 days and ensures each
+event has a 5-minute alert. It is intended for Exchange calendars where
+you want a background job to enforce a consistent alert policy.
 
 This is specifically a Calendar.app-for-Mac workflow. The configured
 calendar names and account/source names must match what Calendar.app
@@ -105,8 +110,8 @@ quoted path rather than `~`, because `zsh` does not expand `~` inside
 double quotes:
 
 ```bash
-swiftc "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Software/Sync Aggregate Calendar/sync_aggregate_calendar.swift" -o "$HOME/bin/sync_aggregate_calendar"
-swiftc "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Software/Sync Aggregate Calendar/cleanup_aggregate_calendar.swift" -o "$HOME/bin/cleanup_aggregate_calendar"
+swiftc "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Software/Calendar Scripts/sync_aggregate_calendar.swift" -o "$HOME/bin/sync_aggregate_calendar"
+swiftc "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Software/Calendar Scripts/cleanup_aggregate_calendar.swift" -o "$HOME/bin/cleanup_aggregate_calendar"
 ```
 
 Run the sync:
@@ -133,3 +138,73 @@ EventKit can read and write your Calendar.app events.
   one processed wins and the script reports a duplicate count.
 - The cleanup helper is destructive for the destination calendar inside
   the sync window. Use it carefully.
+
+## Exchange Alert Enforcer
+
+`enforce_exchange_alerts.swift`:
+
+- reads one configured Calendar.app calendar between now and
+  `lookAheadDays` days in the future
+- skips canceled events
+- skips all-day events by default, because a 5-minute alert is usually
+  not useful for all-day blocks
+- treats recurring series once instead of modifying every future
+  occurrence separately
+- checks whether each event already has a 5-minute alert
+- adds the alert if it is missing
+- replaces a non-matching alert if
+  `replaceExistingAlertsWhenMissing` is `true`
+
+This script is designed around Exchange behavior in Calendar.app, where
+events can have only one alert.
+
+### Configure
+
+Open [`enforce_exchange_alerts.swift`](./enforce_exchange_alerts.swift)
+and edit the `USER CONFIGURATION` section:
+
+- `targetCalendar`: the calendar name and account/source name exactly as
+  shown in Calendar.app
+- `lookAheadDays`: how far ahead to scan
+- `requiredAlertOffsetSeconds`: the alert offset relative to event start
+- `replaceExistingAlertsWhenMissing`: whether to replace a non-5-minute
+  alert with the required 5-minute alert
+- `includeAllDayEvents`: whether all-day events should also be forced to
+  have the alert
+- `dryRun`: print what would change without saving anything
+
+### Build And Run
+
+```bash
+swiftc enforce_exchange_alerts.swift -o ~/bin/enforce_exchange_alerts
+~/bin/enforce_exchange_alerts
+```
+
+If you compile from outside the repo directory:
+
+```bash
+swiftc "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Software/Calendar Scripts/enforce_exchange_alerts.swift" -o "$HOME/bin/enforce_exchange_alerts"
+```
+
+On first run, macOS will prompt for Calendar access. Grant access so
+EventKit can inspect and update your Calendar.app events.
+
+### Run Every 15 Minutes With launchd
+
+An example LaunchAgent template is included at
+[`launchd/com.art.enforce_exchange_alerts.plist.example`](./launchd/com.art.enforce_exchange_alerts.plist.example).
+
+To use it:
+
+1. Replace `REPLACE_WITH_YOUR_USERNAME` with your macOS username.
+2. Save the file as
+   `~/Library/LaunchAgents/com.art.enforce_exchange_alerts.plist`.
+3. Load it:
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.art.enforce_exchange_alerts.plist 2>/dev/null
+launchctl load ~/Library/LaunchAgents/com.art.enforce_exchange_alerts.plist
+```
+
+This LaunchAgent runs the compiled binary every 900 seconds
+(15 minutes), and also once at load time.
