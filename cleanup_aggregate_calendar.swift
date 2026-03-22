@@ -6,7 +6,7 @@
 // Calendar.app on Mac.
 //
 // Recompile script (local, ignored by git):
-// ./.local/recompile_cleanup_aggregate_calendar.sh
+// ./local/recompile_cleanup_aggregate_calendar.sh
 //
 // Run command:
 // "$HOME/bin/cleanup_aggregate_calendar"

@@ -16,7 +16,7 @@
 // Calendar.app shows.
 //
 // Recompile script (local, ignored by git):
-// ./.local/recompile_sync_aggregate_calendar.sh
+// ./local/recompile_sync_aggregate_calendar.sh
 //
 // Run command:
 // "$HOME/bin/sync_aggregate_calendar"
