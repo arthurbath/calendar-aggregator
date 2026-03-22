@@ -14,14 +14,6 @@
 // This works specifically with Calendar.app on Mac through EventKit.
 // The calendar names and account/source names must match what
 // Calendar.app shows.
-//
-// Recompile script (local, ignored by git):
-// ./local/recompile_sync_aggregate_calendar.sh
-//
-// Run command:
-// "$HOME/bin/sync_aggregate_calendar"
-//
-
 import Foundation
 import EventKit
 import CryptoKit

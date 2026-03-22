@@ -4,14 +4,6 @@
 // This script deletes all events from today through the next 365 days
 // from the destination calendar "Aggregate" on the Google account in
 // Calendar.app on Mac.
-//
-// Recompile script (local, ignored by git):
-// ./local/recompile_cleanup_aggregate_calendar.sh
-//
-// Run command:
-// "$HOME/bin/cleanup_aggregate_calendar"
-//
-
 import Foundation
 import EventKit
 

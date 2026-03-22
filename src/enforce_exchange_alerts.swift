@@ -8,14 +8,6 @@
 // a 5-minute alert.
 //
 // Edit the USER CONFIGURATION section first.
-//
-// Recompile script (local, ignored by git):
-// ./local/recompile_enforce_exchange_alerts.sh
-//
-// Run command:
-// "$HOME/bin/enforce_exchange_alerts"
-//
-
 import Foundation
 import EventKit
 
