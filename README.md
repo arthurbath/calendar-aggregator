@@ -3,7 +3,6 @@
 These Swift scripts automate Calendar.app tasks on macOS:
 - `1-src/sync_aggregate_calendar.swift`: Merges multiple source calendars into one destination calendar.
 - `1-src/clear_calendar.swift`: Removes all events from the destination calendar.
-- `1-src/enforce_alerts.swift`: Ensures upcoming events across one or more calendars have their required alerts.
 
 ## Configure & Compile
 
@@ -16,7 +15,7 @@ The numbered folders reflect the intended setup order:
 
 1. Copy the script you want from `1-src/` into `2-personalized/`.
 1. Edit the `USER CONFIGURATION` section in that personalized copy.
-1. Run the script's matching compiler script in `3-compilers/`. The compiler scripts write executables to `4-dist/apps/`. The sync and alert compilers also generate LaunchAgent plist files in `4-dist/launchd/` for interval-based runs.
+1. Run the script's matching compiler script in `3-compilers/`. The compiler scripts write executables to `4-dist/apps/`. The sync compiler also generates a LaunchAgent plist in `4-dist/launchd/` for interval-based runs.
 
 ## Install on macOS
 
