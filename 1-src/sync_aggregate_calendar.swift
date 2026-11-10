@@ -1,5 +1,5 @@
 //
-// Calendar Scripts: Aggregate Calendar Sync
+// Legacy Calendar Aggregator sync command
 // Uses the shared CalendarSyncEngine.swift.
 //
 // This macOS script incrementally merges events from multiple

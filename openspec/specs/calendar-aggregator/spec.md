@@ -1,7 +1,9 @@
 # calendar-aggregator Specification
 
 ## Purpose
-TBD - created by archiving change add-calendar-aggregator. Update Purpose after archive.
+
+Calendar Aggregator combines selected calendars into one destination. The macOS menu bar app manages configuration, scheduling, and sync status.
+
 ## Requirements
 ### Requirement: Configure aggregate calendar sync
 

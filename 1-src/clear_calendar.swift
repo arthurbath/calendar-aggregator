@@ -1,5 +1,5 @@
 //
-// Calendar Scripts: Clear Calendar
+// Clear Calendar utility for Calendar Aggregator
 //
 // This script deletes all events from the configured destination
 // calendar in Calendar.app on Mac.

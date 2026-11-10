@@ -1,5 +1,5 @@
-# Personalized Scripts
+# Local Utility Configuration
 
-Put private, configured copies of the scripts from `1-src/` in this directory before running the compiler scripts in `3-compilers/`.
+Use this directory for private copies of Clear Calendar or the legacy sync command. Copy the relevant template from `1-src/`, edit its calendar settings, and run its matching compiler in `3-compilers/`.
 
-The compiler scripts build from `2-personalized/`, not from `1-src/`. Files added here are ignored by git except for this README and the directory's `.gitignore`.
+Git ignores your personalized copies. Configure the Calendar Aggregator app through its Configuration window.
