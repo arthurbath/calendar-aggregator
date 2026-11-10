@@ -35,6 +35,14 @@ The app SHALL reconcile events within the configured window using the legacy own
 
 Calendar Aggregator SHALL use Lucide's calendar-sync icon in the macOS menu bar. It SHALL offer Sync Now, Automatic Sync, status including the last successful sync, and Open at Login. Automatic sync SHALL run on startup and every 15 minutes while enabled. Runs SHALL be serialized and require full Calendar access.
 
+The popover SHALL place Sync Now with sync status, followed by a Configuration section above Automatic Sync and Open at Login. Configuration SHALL show the number of configured source calendars and the destination name and account. The popover SHALL open a separate window for edits and place Quit in a gear menu.
+
+#### Scenario: Show the last successful event count
+
+- **WHEN** a sync succeeds for the current configuration
+- **THEN** the Configuration section shows the number of events added, updated, or already current within the sync window
+- **AND** the count survives relaunch and is withheld after a configuration change until another sync succeeds
+
 #### Scenario: A sync is already running
 
 - **WHEN** a timer fires or the user requests another sync during a run

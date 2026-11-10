@@ -1,5 +1,17 @@
 import Foundation
 
+struct SyncCoverage: Codable {
+    let completedAt: Date
+    let configurationRevision: UUID?
+    let eventCount: Int
+
+    func count(for settings: SyncSettings, lastSync: Date?) -> Int? {
+        guard settings.destination != nil, completedAt == lastSync,
+              configurationRevision == settings.configurationRevision else { return nil }
+        return eventCount
+    }
+}
+
 struct LocalSettings {
     let directory: URL
 

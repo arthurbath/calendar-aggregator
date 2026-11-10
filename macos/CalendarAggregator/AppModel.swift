@@ -14,6 +14,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var loginStatus = SMAppService.mainApp.status
     @Published private(set) var isSyncing = false
     @Published private(set) var lastSync: Date?
+    @Published private var lastSyncCoverage: SyncCoverage?
     @Published private(set) var result: String?
     @Published private(set) var problem: String?
 
@@ -25,8 +26,18 @@ final class AppModel: ObservableObject {
     private var timer: Timer?
     private var started = false
     private let lastSyncKey = "lastSuccessfulSync"
+    private let coverageKey = "lastSuccessfulSyncCoverage"
 
     var hasAccess: Bool { authorization == .fullAccess }
+
+    var destination: CalendarReference? {
+        guard let configured = settings.destination else { return nil }
+        return choices.first { $0.id == configured.identifier }?.reference ?? configured
+    }
+
+    var syncedEventCount: Int? {
+        lastSyncCoverage?.count(for: settings, lastSync: lastSync)
+    }
 
     var configurationProblem: String? {
         guard hasAccess else { return "Calendar access is required." }
@@ -51,9 +62,12 @@ final class AppModel: ObservableObject {
         do {
             settings = try storage.load()
         } catch {
-            settingsProblem = "Could not read the saved settings. Review and save them again."
+            settingsProblem = "Could not read the saved configuration. Review and save it again."
         }
         lastSync = UserDefaults.standard.object(forKey: lastSyncKey) as? Date
+        if let data = UserDefaults.standard.data(forKey: coverageKey) {
+            lastSyncCoverage = try? PropertyListDecoder().decode(SyncCoverage.self, from: data)
+        }
         refresh()
         timer = Timer(timeInterval: 900, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.runAutomatically() }
@@ -121,6 +135,7 @@ final class AppModel: ObservableObject {
             updated.sources[index].identifier = source.id
         }
         updated.automaticSync = settings.automaticSync
+        updated.configurationRevision = UUID()
         try persist(updated)
         settingsProblem = nil
     }
@@ -189,8 +204,12 @@ final class AppModel: ObservableObject {
                     return try runCalendarSync(store: EKEventStore(), settings: snapshot)
                 }.value
                 let completed = Date()
+                let coverage = SyncCoverage(completedAt: completed, configurationRevision: snapshot.configurationRevision,
+                                            eventCount: report.syncedEventCount)
                 lastSync = completed
+                lastSyncCoverage = coverage
                 UserDefaults.standard.set(completed, forKey: lastSyncKey)
+                UserDefaults.standard.set(try? PropertyListEncoder().encode(coverage), forKey: coverageKey)
                 result = "\(report.created) added · \(report.updated) updated · \(report.deleted + report.duplicateCopies) removed"
                 logger.info("Sync complete: \(report.created) added, \(report.updated) updated, \(report.deleted + report.duplicateCopies) removed")
             } catch {

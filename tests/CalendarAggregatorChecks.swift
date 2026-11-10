@@ -54,6 +54,7 @@ enum CalendarAggregatorChecks {
         settings.sources[0].replacementTitle = " "
         rejects { try CalendarSelection(settings: settings, choices: [work, target]) }
 
+        try checkSyncCoverage()
         try checkHandoff(at: root)
         if CommandLine.arguments.count > 2 {
             let artwork = URL(fileURLWithPath: CommandLine.arguments[2], isDirectory: true)
@@ -69,6 +70,29 @@ enum CalendarAggregatorChecks {
             _ = try action()
             preconditionFailure("Expected validation to reject the operation.")
         } catch {}
+    }
+
+    private static func checkSyncCoverage() throws {
+        let completed = Date(timeIntervalSince1970: 1_800_000_000.125)
+        var report = SyncReport(start: completed, end: completed, destinationTitle: "Aggregate")
+        report.created = 3
+        report.updated = 2
+        report.unchanged = 40
+        report.deleted = 7
+        report.duplicateCopies = 1
+
+        // Settings saved before counts were introduced have no configuration revision.
+        var settings = SyncSettings(destination: CalendarReference(title: "Aggregate", sourceTitle: "Personal"))
+        let coverage = SyncCoverage(completedAt: completed, configurationRevision: settings.configurationRevision,
+                                    eventCount: report.syncedEventCount)
+        let data = try PropertyListEncoder().encode(coverage)
+        let reloaded = try PropertyListDecoder().decode(SyncCoverage.self, from: data)
+        precondition(reloaded.count(for: settings, lastSync: completed) == 45)
+        precondition(reloaded.count(for: settings, lastSync: completed.addingTimeInterval(900)) == nil)
+        settings.automaticSync = true
+        precondition(reloaded.count(for: settings, lastSync: completed) == 45)
+        settings.configurationRevision = UUID()
+        precondition(reloaded.count(for: settings, lastSync: completed) == nil)
     }
 
     private static func checkHandoff(at root: URL) throws {
