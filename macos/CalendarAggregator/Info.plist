@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleDisplayName</key>
+    <string>Calendar Aggregator</string>
+    <key>CFBundleExecutable</key>
+    <string>Calendar Aggregator</string>
+    <key>CFBundleIdentifier</key>
+    <string>garden.bath.calendar-aggregator</string>
+    <key>CFBundleName</key>
+    <string>Calendar Aggregator</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>LSMultipleInstancesProhibited</key>
+    <true/>
+    <key>NSCalendarsFullAccessUsageDescription</key>
+    <string>Calendar Aggregator reads your selected calendars and keeps their copied events up to date in your destination calendar.</string>
+</dict>
+</plist>

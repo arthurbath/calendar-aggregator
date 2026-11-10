@@ -23,7 +23,17 @@ if [[ ! -f "$source_file" ]]; then
 fi
 
 mkdir -p "$dist_app_dir" "$launchd_dir"
-swiftc "$source_file" -o "$dist_app_dir/$app_name"
+if grep -Fq '// Uses the shared CalendarSyncEngine.swift.' "$source_file"; then
+    (
+        compile_dir=$(mktemp -d "${TMPDIR:-/tmp}/calendar-sync-cli.XXXXXX")
+        trap 'rm -rf "$compile_dir"' EXIT
+        cp "$source_file" "$compile_dir/main.swift"
+        swiftc -module-cache-path "$compile_dir/cache" "$repo_dir/1-src/CalendarSyncEngine.swift" \
+            "$compile_dir/main.swift" -o "$dist_app_dir/$app_name"
+    )
+else
+    swiftc "$source_file" -o "$dist_app_dir/$app_name"
+fi
 
 cat > "$plist_path" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
