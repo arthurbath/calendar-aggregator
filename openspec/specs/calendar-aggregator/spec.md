@@ -5,7 +5,7 @@ TBD - created by archiving change add-calendar-aggregator. Update Purpose after 
 ## Requirements
 ### Requirement: Configure aggregate calendar sync
 
-Calendar Aggregator SHALL persist a writable destination and one or more source calendars selected from Calendar accounts. For each source it SHALL allow the user to reveal event titles or supply a replacement title, and to include or exclude all-day events. It SHALL retain organizer filters and the sync window when importing legacy settings.
+Calendar Aggregator SHALL persist a writable destination and one or more source calendars selected from Calendar accounts. For each source it SHALL allow the user to reveal event titles or supply a replacement title, and to include or exclude all-day events. It SHALL preserve organizer filters and the sync window in saved settings when the user edits unrelated options.
 
 #### Scenario: Save settings for two source accounts
 

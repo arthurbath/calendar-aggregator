@@ -1,14 +1,11 @@
-import AppKit
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct CalendarSettingsView: View {
     @ObservedObject var model: AppModel
     @State private var draft = SyncSettings()
     @State private var baseline = SyncSettings()
-    @State private var importing = false
     @State private var message: String?
-    @State private var importOrSaveFailed = false
+    @State private var saveFailed = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -44,19 +41,18 @@ struct CalendarSettingsView: View {
             .formStyle(.grouped)
             Divider()
             HStack {
-                Button("Import Settings…") { importing = true }
                 if !model.hasAccess {
                     Button("Allow Calendar Access", action: model.requestAccess)
                         .disabled(model.requestingAccess)
                 }
                 Spacer()
-                Button("Revert") { draft = baseline; message = nil }.disabled(draft == baseline)
+                Button("Cancel") { draft = baseline; message = nil }.disabled(draft == baseline)
                 Button("Save") { save() }.keyboardShortcut(.defaultAction)
                     .disabled(!model.hasAccess || draft == baseline || model.isSyncing)
             }.padding(12)
             if let message {
                 Text(message)
-                    .foregroundStyle(importOrSaveFailed ? Color.red : .secondary)
+                    .foregroundStyle(saveFailed ? Color.red : .secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 12).padding(.bottom, 12)
                     .accessibilityIdentifier("settings-message")
@@ -68,7 +64,6 @@ struct CalendarSettingsView: View {
             baseline = model.settings
             draft = baseline
         }
-        .fileImporter(isPresented: $importing, allowedContentTypes: [.json], onCompletion: importSettings)
     }
 
     private var availableSources: [CalendarChoice] {
@@ -113,7 +108,7 @@ struct CalendarSettingsView: View {
                     set: { draft.sources[index].replacementTitle = $0 }
                 ))
             }
-            Toggle("Include All-Day Events", isOn: $draft.sources[index].includeAllDayEvents)
+            Toggle("Include All-day Events", isOn: $draft.sources[index].includeAllDayEvents)
             if !source.excludedOrganizerEmails.isEmpty {
                 Text("Keeps the organizer exclusions from your previous settings.")
                     .font(.caption).foregroundStyle(.secondary)
@@ -127,30 +122,16 @@ struct CalendarSettingsView: View {
                                         identifier: choice.id))
     }
 
-    private func importSettings(_ selection: Result<URL, Error>) {
-        do {
-            let url = try selection.get()
-            let scoped = url.startAccessingSecurityScopedResource()
-            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-            draft = try JSONDecoder().decode(SyncSettings.self, from: Data(contentsOf: url))
-            message = "Review the imported settings, then save."
-            importOrSaveFailed = false
-        } catch {
-            message = "Could not import those settings. \(error.localizedDescription)"
-            importOrSaveFailed = true
-        }
-    }
-
     private func save() {
         do {
             try model.save(draft)
             baseline = model.settings
             draft = baseline
             message = "Settings saved."
-            importOrSaveFailed = false
+            saveFailed = false
         } catch {
             message = error.localizedDescription
-            importOrSaveFailed = true
+            saveFailed = true
         }
     }
 }
