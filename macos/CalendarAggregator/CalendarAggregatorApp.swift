@@ -49,19 +49,24 @@ struct SyncPopover: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 13) {
-            Label(model.status, systemImage: statusIcon)
-                .font(.headline)
-                .fixedSize(horizontal: false, vertical: true)
-            if let date = model.lastSync {
-                Text("Last sync \(date.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            if let result = model.result {
-                Text(result).font(.caption).foregroundStyle(.secondary)
-            }
-            if let problem = model.problem {
-                Text(problem).font(.caption).foregroundStyle(.red)
+            VStack(alignment: .leading, spacing: 5) {
+                Label(model.status, systemImage: statusIcon)
+                    .font(.headline)
                     .fixedSize(horizontal: false, vertical: true)
+                Group {
+                    if let date = model.lastSync {
+                        Text("Last sync \(date.formatted(date: .abbreviated, time: .shortened))")
+                    }
+                    if let result = model.result {
+                        Text(result)
+                    }
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                if let problem = model.problem {
+                    Text(problem).font(.subheadline).foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
             if !model.hasAccess {
                 Button("Allow Calendar Access", action: model.requestAccess)
@@ -76,52 +81,69 @@ struct SyncPopover: View {
                         Text("Calendar Aggregator will save a copy of the old LaunchAgent and take over its 15-minute schedule.")
                     }
             }
-            Button("Sync Now", action: model.syncNow).disabled(!model.canSync)
+            Button("Sync Now", action: model.syncNow)
+                .disabled(!model.canSync)
+                .frame(maxWidth: .infinity, alignment: .trailing)
             Divider()
             configurationSection
             Divider()
-            Toggle("Automatic Sync", isOn: Binding(get: { model.settings.automaticSync }, set: model.setAutomatic))
+            optionToggle("Automatic Sync", isOn: Binding(get: { model.settings.automaticSync }, set: model.setAutomatic))
                 .disabled(!model.settings.automaticSync && (!model.canSync || model.isSyncing))
-            Toggle("Open at Login", isOn: Binding(get: { model.loginStatus == .enabled }, set: model.setOpenAtLogin))
+            optionToggle("Open at Login", isOn: Binding(get: { model.loginStatus == .enabled }, set: model.setOpenAtLogin))
             if model.loginStatus == .requiresApproval {
                 Button("Open Login Items Settings", action: SMAppService.openSystemSettingsLoginItems)
             }
             Divider()
             Menu {
-                Button("Quit Calendar Aggregator") { NSApp.terminate(nil) }
+                Button("Quit") { NSApp.terminate(nil) }
                     .disabled(model.isSyncing)
             } label: {
                 Image(systemName: "gearshape").accessibilityLabel("App Menu")
             }
             .menuStyle(.borderlessButton)
             .fixedSize()
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .toggleStyle(.switch)
         .padding(16)
-        .frame(width: 350, alignment: .leading)
+        .frame(width: 300, alignment: .leading)
         .onAppear(perform: model.refresh)
     }
 
     private var configurationSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Configuration").font(.headline).accessibilityAddTraits(.isHeader)
-            LabeledContent("Source Calendars", value: model.settings.sources.count.formatted())
-            LabeledContent("Destination Calendar") {
-                if let destination = model.destination {
-                    Text(destination.label)
-                        .multilineTextAlignment(.trailing)
-                        .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    Text("Not Configured")
-                }
-            }
+            metric("Source Calendars", value: model.settings.sources.count.formatted())
+            metric("Destination Calendar", value: model.destination?.label ?? "Not Configured")
             if let count = model.syncedEventCount {
-                LabeledContent("Events at Last Sync", value: count.formatted())
+                metric("Events at Last Sync", value: count.formatted())
             }
             Button("Edit Configuration…") {
                 openWindow(id: "settings")
                 NSApp.activate(ignoringOtherApps: true)
-            }.keyboardShortcut(",")
+            }
+            .keyboardShortcut(",")
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+
+    private func metric(_ label: LocalizedStringKey, value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+            Text(label)
+                .foregroundStyle(.secondary)
+                .layoutPriority(1)
+            Spacer(minLength: 12)
+            Text(value)
+                .multilineTextAlignment(.trailing)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .font(.subheadline)
+        .accessibilityElement(children: .combine)
+    }
+
+    private func optionToggle(_ title: LocalizedStringKey, isOn: Binding<Bool>) -> some View {
+        Toggle(isOn: isOn) {
+            Text(title).frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 

@@ -37,6 +37,8 @@ Calendar Aggregator SHALL use Lucide's calendar-sync icon in the macOS menu bar.
 
 The popover SHALL place Sync Now with sync status, followed by a Configuration section above Automatic Sync and Open at Login. Configuration SHALL show the number of configured source calendars and the destination name and account. The popover SHALL open a separate window for edits and place Quit in a gear menu.
 
+The popover SHALL align metric and switch labels to the leading edge. Values, switches, Sync Now, Edit Configuration, and the gear menu SHALL align to the trailing edge.
+
 #### Scenario: Show the last successful event count
 
 - **WHEN** a sync succeeds for the current configuration
