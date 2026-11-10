@@ -15,7 +15,6 @@ final class AppModel: ObservableObject {
     @Published private(set) var isSyncing = false
     @Published private(set) var lastSync: Date?
     @Published private var lastSyncCoverage: SyncCoverage?
-    @Published private(set) var result: String?
     @Published private(set) var problem: String?
 
     private let storage = LocalSettings.standard
@@ -49,11 +48,11 @@ final class AppModel: ObservableObject {
 
     var status: String {
         if isSyncing { return "Syncing…" }
-        if !hasAccess { return "Calendar access required" }
+        if !hasAccess { return "Calendar Access Required" }
         if let schedulerProblem { return schedulerProblem }
-        if legacyPresent { return "The previous sync job is active" }
+        if legacyPresent { return "Previous Sync Job Active" }
         if let configurationProblem { return configurationProblem }
-        return settings.automaticSync ? "Syncs every 15 minutes" : "Automatic sync paused"
+        return settings.automaticSync ? "Syncing Every 15 Minutes" : "Automatic Sync Paused"
     }
 
     func start() {
@@ -189,7 +188,6 @@ final class AppModel: ObservableObject {
         guard canSync else { return }
         let snapshot = settings
         isSyncing = true
-        result = nil
         problem = nil
         Task {
             defer { isSyncing = false }
@@ -210,7 +208,6 @@ final class AppModel: ObservableObject {
                 lastSyncCoverage = coverage
                 UserDefaults.standard.set(completed, forKey: lastSyncKey)
                 UserDefaults.standard.set(try? PropertyListEncoder().encode(coverage), forKey: coverageKey)
-                result = "\(report.created) added · \(report.updated) updated · \(report.deleted + report.duplicateCopies) removed"
                 logger.info("Sync complete: \(report.created) added, \(report.updated) updated, \(report.deleted + report.duplicateCopies) removed")
             } catch {
                 problem = error.localizedDescription
