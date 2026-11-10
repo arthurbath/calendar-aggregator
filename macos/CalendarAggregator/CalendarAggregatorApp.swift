@@ -18,7 +18,7 @@ struct CalendarAggregatorApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        Window("Calendar Aggregator Settings", id: "settings") {
+        Window("Calendar Aggregator Configuration", id: "settings") {
             CalendarSettingsView(model: delegate.model)
         }
         .defaultSize(width: 540, height: 520)
@@ -76,6 +76,9 @@ struct SyncPopover: View {
                         Text("Calendar Aggregator will save a copy of the old LaunchAgent and take over its 15-minute schedule.")
                     }
             }
+            Button("Sync Now", action: model.syncNow).disabled(!model.canSync)
+            Divider()
+            configurationSection
             Divider()
             Toggle("Automatic Sync", isOn: Binding(get: { model.settings.automaticSync }, set: model.setAutomatic))
                 .disabled(!model.settings.automaticSync && (!model.canSync || model.isSyncing))
@@ -84,20 +87,42 @@ struct SyncPopover: View {
                 Button("Open Login Items Settings", action: SMAppService.openSystemSettingsLoginItems)
             }
             Divider()
-            HStack {
-                Button("Sync Now", action: model.syncNow).disabled(!model.canSync)
-                Button("Settings…") {
-                    openWindow(id: "settings")
-                    NSApp.activate(ignoringOtherApps: true)
-                }.keyboardShortcut(",")
-                Spacer()
-                Button("Quit") { NSApp.terminate(nil) }.disabled(model.isSyncing)
+            Menu {
+                Button("Quit Calendar Aggregator") { NSApp.terminate(nil) }
+                    .disabled(model.isSyncing)
+            } label: {
+                Image(systemName: "gearshape").accessibilityLabel("App Menu")
             }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
         }
         .toggleStyle(.switch)
         .padding(16)
         .frame(width: 350, alignment: .leading)
         .onAppear(perform: model.refresh)
+    }
+
+    private var configurationSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Configuration").font(.headline).accessibilityAddTraits(.isHeader)
+            LabeledContent("Source Calendars", value: model.settings.sources.count.formatted())
+            LabeledContent("Destination Calendar") {
+                if let destination = model.destination {
+                    Text(destination.label)
+                        .multilineTextAlignment(.trailing)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    Text("Not Configured")
+                }
+            }
+            if let count = model.syncedEventCount {
+                LabeledContent("Events at Last Sync", value: count.formatted())
+            }
+            Button("Edit Configuration…") {
+                openWindow(id: "settings")
+                NSApp.activate(ignoringOtherApps: true)
+            }.keyboardShortcut(",")
+        }
     }
 
     private var statusIcon: String {

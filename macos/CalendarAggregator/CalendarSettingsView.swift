@@ -127,7 +127,7 @@ struct CalendarSettingsView: View {
             try model.save(draft)
             baseline = model.settings
             draft = baseline
-            message = "Settings saved."
+            message = "Configuration saved."
             saveFailed = false
         } catch {
             message = error.localizedDescription

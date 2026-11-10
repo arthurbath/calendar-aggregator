@@ -36,6 +36,7 @@ struct SyncSettings: Codable, Equatable {
     var busyEventTitle = "Busy"
     var managedByValue = "sync_aggregate_calendar_v2"
     var automaticSync = false
+    var configurationRevision: UUID?
 
     func replacement(for spec: SourceSpec) -> String {
         sanitized(spec.replacementTitle ?? busyEventTitle)
@@ -113,6 +114,8 @@ struct SyncReport {
     var skippedOrganizer = 0
     var duplicateSourceKeys = 0
     var duplicateCopies = 0
+
+    var syncedEventCount: Int { created + updated + unchanged }
 
     var logLines: [String] {
         [
