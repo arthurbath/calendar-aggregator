@@ -1,6 +1,7 @@
 schema: spec-driven
 
 context: |
-  Calendar Scripts automates macOS Calendar through EventKit. Calendar
-  Aggregator is a personally signed menu bar app. Keep calendar account
-  choices and organizer filters local to the Mac.
+  Calendar Aggregator is a personally signed macOS menu bar app that syncs
+  events from multiple source calendars into one destination through EventKit.
+  Clear Calendar is a supporting utility for resetting a destination during
+  development. Keep calendar account choices and organizer filters local to the Mac.
