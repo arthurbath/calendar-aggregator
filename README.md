@@ -10,15 +10,9 @@ Calendar Aggregator is the macOS menu bar app for aggregate calendar sync. Build
 
 The build is written to `~/Library/Caches/garden.bath.calendar-aggregator/build/Calendar Aggregator.app`. Copy the app into Applications before enabling Open at Login.
 
-For an existing personalized setup, export the current settings to a new local file:
+Open Calendar Aggregator from the menu bar and grant full Calendar access. In **Settings**, choose your destination and source calendars, set the rules for each source, and save.
 
-```sh
-./3-compilers/import_calendar_aggregator_settings.sh "$HOME/Desktop/calendar-aggregator-settings.json"
-```
-
-Open Calendar Aggregator from the menu bar and grant full Calendar access. In **Settings**, choose **Import Settings**, select the exported JSON, review the destination and sources, and save. The export contains private calendar settings and can be deleted after import.
-
-If the previous job is installed, choose **Replace Previous Sync Job** in the menu bar. The app starts its 15-minute schedule after retiring the old job and saving its plist under `~/Library/Application Support/Calendar Aggregator/Legacy LaunchAgents/`. To configure a fresh setup, select your calendars in Settings, save, and turn on **Automatic Sync**.
+For a fresh setup, turn on **Automatic Sync**. If the previous job is installed, choose **Replace Previous Sync Job** instead. The app starts its 15-minute schedule after retiring the old job and saving its plist under `~/Library/Application Support/Calendar Aggregator/Legacy LaunchAgents/`.
 
 ## Standalone scripts
 
