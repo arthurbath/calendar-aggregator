@@ -37,7 +37,14 @@ The numbered folders show the setup order for the standalone tools:
 
 1. Copy the script you want from `1-src/` into `2-personalized/`.
 1. Edit the `USER CONFIGURATION` section in that personalized copy.
-1. Run the script's matching compiler script in `3-compilers/`. The compiler scripts write executables to `4-dist/apps/`. The sync compiler also generates a LaunchAgent plist in `4-dist/launchd/` for interval-based runs.
+1. Run the script's matching compiler script in `3-compilers/`. The compiler scripts write signed executables to `4-dist/apps/`. The sync compiler also generates a LaunchAgent plist in `4-dist/launchd/` for interval-based runs.
+
+The compiler scripts require the `Art Bath Personal Code Signing` identity and its private key in the login keychain. They sign each executable with a stable identifier:
+
+- `garden.bath.sync-aggregate-calendar`
+- `garden.bath.clear-calendar`
+
+Each build is compiled to a temporary file, signed, and strictly verified before it replaces the previous distribution artifact. The scripts never fall back to an ad-hoc signature. To use a different identity intentionally, set `SIGNING_IDENTITY` for that build.
 
 ### Install a Standalone Utility
 
@@ -50,4 +57,4 @@ launchctl load "$HOME/Library/LaunchAgents/<label>.plist"
 
 The legacy LaunchAgent runs the executable in `~/Applications/` and writes logs to `~/Library/Logs/`.
 
-On first run, macOS will ask for Calendar access.
+On first run after adopting the stable signed identities, macOS may ask for Calendar access again.
